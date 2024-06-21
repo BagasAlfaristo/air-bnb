@@ -30,14 +30,12 @@ func New(us user.UserService, hash encrypts.HashInterface) *UserHandler {
 
 func (uh *UserHandler) Register(c echo.Context) error {
 	newUser := UserRequest{}
-	errBind := c.Bind(&newUser)
-	if errBind != nil {
+	if errBind := c.Bind(&newUser); errBind != nil {
 		return c.JSON(http.StatusBadRequest, responses.JSONWebResponse(bindError+errBind.Error(), nil))
 	}
 
 	inputCore := RequestToCore(newUser)
-	errInsert := uh.userService.Create(inputCore)
-	if errInsert != nil {
+	if errInsert := uh.userService.Create(inputCore); errInsert != nil {
 		if strings.Contains(errInsert.Error(), "validation") {
 			return c.JSON(http.StatusBadRequest, responses.JSONWebResponse("Please fill in all required fields. Full Name, Email, and Password cannot be blank.", nil))
 		}
